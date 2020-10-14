@@ -16,6 +16,8 @@ Figure::Figure(int **figure, int type)
     this->mFigure = new int*[this->mN];
     this->setFigure(figure);
     this->mType = type;
+
+    this->mIsBlocked = false;
 }
 
 Figure::Figure()
@@ -39,6 +41,7 @@ Figure::Figure()
             this->mFigure[i][j] = 0;
         }
     }
+    this->mIsBlocked = false;
 }
 
 int Figure::getN()
@@ -104,6 +107,21 @@ void Figure::setOffsetY(int offsetY)
 int **Figure::getFigure()
 {
     return this->mFigure;
+}
+
+bool Figure::isBlocked()
+{
+    return mIsBlocked;
+}
+
+void Figure::unblock()
+{
+    this->mIsBlocked = false;
+}
+
+void Figure::block()
+{
+    this->mIsBlocked = true;
 }
 
 void Figure::setFigure(int **figure)

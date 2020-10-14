@@ -31,6 +31,9 @@ public:
     void setOffsetX(int offsetX);
     void setOffsetY(int offsetY);
 
+    bool isBlocked();
+    void unblock();
+    void block();
 protected:
 
     Figure();
@@ -46,6 +49,8 @@ protected:
 
     int **mFigure;
     int mType;
+
+    bool mIsBlocked;
 };
 
 #endif // FIGURE_H
