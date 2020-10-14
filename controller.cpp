@@ -1,5 +1,5 @@
 #include "controller.h"
-#include <iostream>
+
 Controller::Controller()
 {
 
@@ -174,7 +174,7 @@ bool Controller::hasCollisionsWhenRotation(Figure *figure)
     return false;
 }
 
-void Controller::movementLeft(Figure *figure)
+bool Controller::movementLeft(Figure *figure)
 {
     figure->setY(figure->getY() - 1);
     if(this->hasCollisionsWhenMovingLeft(figure))
@@ -185,9 +185,11 @@ void Controller::movementLeft(Figure *figure)
     {
         figure->setOffsetX(figure->getOffsetX() - Map::mCellWidth);
     }
+
+    return this->isPossibleMovementDown(figure);
 }
 
-void Controller::movementRight(Figure *figure)
+bool Controller::movementRight(Figure *figure)
 {
     figure->setY(figure->getY() + 1);
     if(this->hasCollisionsWhenMovingRight(figure))
@@ -198,28 +200,34 @@ void Controller::movementRight(Figure *figure)
     {
         figure->setOffsetX(figure->getOffsetX() + Map::mCellHeight);
     }
+
+    return this->isPossibleMovementDown(figure);
 }
 
-void Controller::movementDown(Figure *figure)
+bool Controller::movementDown(Figure *figure)
 {
     figure->setX(figure->getX() + 1);
     if(this->hasCollisionsWhenMovingDown(figure))
     {
+        figure->block();
         figure->setX(figure->getX() - 1);
     }
     else
     {
         figure->setOffsetY(figure->getOffsetY() + Map::mCellHeight);
     }
+    return !figure->isBlocked();
 }
 
-void Controller::rotation(Figure *figure)
+bool Controller::rotation(Figure *figure)
 {
     this->rotateClockWise(figure);
     if(this->hasCollisionsWhenRotation(figure))
     {
         this->rotateCounterClockWise(figure);
     }
+
+    return this->isPossibleMovementDown(figure);
 }
 
 void Controller::rotateClockWise(Figure *figure)
@@ -274,4 +282,35 @@ void Controller::rotateCounterClockWise(Figure *figure)
         delete[] tempFigure[i];
     }
     delete[] tempFigure;
+}
+
+void Controller::lockFigure(Figure *figure)
+{
+    for(int i = 0; i < figure->getN(); ++i)
+    {
+        for(int j = 0; j < figure->getM(); ++j)
+        {
+            if(figure->getFigure()[i][j] != 0)
+            {
+                Map::mMap[figure->getY() + j - 1][figure->getX() + i - 1] = figure->getFigure()[i][j];
+            }
+        }
+    }
+    figure = new FigureZ();
+}
+
+bool Controller::isPossibleMovementDown(Figure *figure)
+{
+    bool isPossibleMovementDown = true;
+    figure->setX(figure->getX() + 1);
+    if(this->hasCollisionsWhenMovingDown(figure))
+    {
+        isPossibleMovementDown = false;
+    }
+    else
+    {
+        figure->unblock();
+    }
+    figure->setX(figure->getX() - 1);
+    return isPossibleMovementDown;
 }
