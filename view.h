@@ -18,9 +18,10 @@ class View : public QMainWindow
     Q_OBJECT
 
 public:
-    View(QWidget *parent = nullptr);
+    View(ICallbackListener *listener, QWidget *parent = nullptr);
     ~View();
     void setFigureMovementListener(ICallbackListener *listener);
+    void initializeFigure();
 
 public slots:
     void animate();

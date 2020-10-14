@@ -6,28 +6,48 @@
 #include <QTimer>
 
 #include <iostream>
-View::View(QWidget *parent)
+#include <windows.h>
+View::View(ICallbackListener *listener, QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::View)
     , mFigureMovementListener(nullptr)
 {
     ui->setupUi(this);
 
-
-    this->mFigure = new FigureL();
-    Map::mMap[0][0] = 1;
-    Map::mMap[4][9] = 1;
-    Map::mMap[9][2] = 1;
-    Map::mMap[7][5] = 1;
+    this->setFigureMovementListener(listener);
+    this->initializeFigure();
 
     auto timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(animate()));
-    timer->start(1000);
+    timer->start(1500);
 }
 
 void View::setFigureMovementListener(ICallbackListener *listener)
 {
     this->mFigureMovementListener = listener;
+}
+
+void View::initializeFigure()
+{
+    srand(time(0));
+    int  i = rand() % 3 + 1;
+    switch (i)
+    {
+    case 1:
+        this->mFigure = new FigureO();
+        break;
+    case 2:
+        this->mFigure = new FigureZ();
+        break;
+    case 3:
+        this->mFigure = new FigureL();
+        break;
+    }
+
+    if(this->mFigureMovementListener->hasCollisions(this->mFigure))
+    {
+        std::cout << "END" << std::endl;
+    }
 }
 
 void View::animate() {
@@ -38,22 +58,44 @@ void View::keyPressEvent(QKeyEvent *e)
 {
     switch (e->key()) {
     case Qt::Key_Up:
-        this->mFigureMovementListener->rotation(this->mFigure);
+        if(!this->mFigureMovementListener->rotation(this->mFigure))
+        {
+            this->mFigureMovementListener->lockFigure(this->mFigure);
+            this->initializeFigure();
+        }
         break;
     case Qt::Key_Down:
-        this->mFigureMovementListener->movementDown(this->mFigure);
+        if(!this->mFigureMovementListener->movementDown(this->mFigure))
+        {
+            this->mFigureMovementListener->lockFigure(this->mFigure);
+            this->initializeFigure();
+        }
         break;
     case Qt::Key_Left:
-        this->mFigureMovementListener->movementLeft(this->mFigure);
+        if(!this->mFigureMovementListener->movementLeft(this->mFigure))
+        {
+            this->mFigureMovementListener->lockFigure(this->mFigure);
+            this->initializeFigure();
+        }
         break;
     case Qt::Key_Right:
-        this->mFigureMovementListener->movementRight(this->mFigure);
+        if(!this->mFigureMovementListener->movementRight(this->mFigure))
+        {
+            this->mFigureMovementListener->lockFigure(this->mFigure);
+            this->initializeFigure();
+        }
         break;
     }
 }
 
 void View::paintEvent(QPaintEvent *event)
 {
+   if(!this->mFigureMovementListener->movementDown(this->mFigure))
+   {
+       this->mFigureMovementListener->lockFigure(this->mFigure);
+       this->initializeFigure();
+   }
+
    QPainter Painter(this);
 
    //drawing map
@@ -108,7 +150,6 @@ void View::paintEvent(QPaintEvent *event)
            }
        }
    }
-   this->mFigureMovementListener->movementDown(this->mFigure);
 }
 
 View::~View()
