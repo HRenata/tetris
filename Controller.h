@@ -2,13 +2,17 @@
 #define CONTROLLER_H
 
 #include <ICallbackFigureWatcher.h>
+#include <ICallbackGameStateWatcher.h>
 #include <Map.h>
+#include <Game.h>
 
 #include <FigureO.h>
 #include <FigureL.h>
 #include <FigureZ.h>
 
-class Controller : public ICallbackFigureWatcher
+class Controller :
+        public ICallbackFigureWatcher,
+        public ICallbackGameStateWatcher
 {
 public:
     Controller();
@@ -30,6 +34,11 @@ public:
 
     void rotateClockWise(Figure *figure);
     void rotateCounterClockWise(Figure *figure);
+
+
+    void startGame() override;
+    void resetGame() override;
+    void endGame() override;
 };
 
 #endif // CONTROLLER_H

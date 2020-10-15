@@ -314,3 +314,26 @@ bool Controller::isPossibleMovementDown(Figure *figure)
     figure->setX(figure->getX() - 1);
     return isPossibleMovementDown;
 }
+
+void Controller::startGame()
+{
+    Game::mGameIsActive = true;
+    Game::mScore = 0;
+    for(int i = 0; i < Map::mN; ++i)
+    {
+        for(int j = 0; j < Map::mM; ++j)
+        {
+            Map::mMap[i][j] = 0;
+        }
+    }
+}
+
+void Controller::resetGame()
+{
+    this->startGame();
+}
+
+void Controller::endGame()
+{
+    Game::mGameIsActive = false;
+}

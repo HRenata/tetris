@@ -7,14 +7,18 @@
 
 #include <iostream>
 #include <windows.h>
-View::View(ICallbackFigureWatcher *listener, QWidget *parent)
+View::View(ICallbackFigureWatcher *figureListener,
+           ICallbackGameStateWatcher *gameListener,
+           QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::View)
     , mFigureMovementListener(nullptr)
+    , mGameStateListener(nullptr)
 {
     ui->setupUi(this);
 
-    this->setFigureMovementListener(listener);
+    this->setFigureMovementListener(figureListener);
+    this->setGameStateListener(gameListener);
     this->initializeFigure();
 
     auto timer = new QTimer(this);
@@ -25,6 +29,11 @@ View::View(ICallbackFigureWatcher *listener, QWidget *parent)
 void View::setFigureMovementListener(ICallbackFigureWatcher *listener)
 {
     this->mFigureMovementListener = listener;
+}
+
+void View::setGameStateListener(ICallbackGameStateWatcher *listener)
+{
+    this->mGameStateListener = listener;
 }
 
 void View::initializeFigure()
@@ -46,7 +55,8 @@ void View::initializeFigure()
 
     if(this->mFigureMovementListener->hasCollisions(this->mFigure))
     {
-        std::cout << "END" << std::endl;
+        //game over
+        Game::mGameIsActive = false;
     }
 }
 
@@ -97,65 +107,73 @@ void View::paintEvent(QPaintEvent *event)
        this->initializeFigure();
    }
 
-   QPainter Painter(this);
+   this->paintMap();
+   this->paintFigure();
+}
 
-   //drawing map
-   for(int i = 0; i < Map::mN; ++i)
-   {
-       for(int j = 0; j < Map::mM; ++j)
-       {
-           QRect el(Map::mOffsetX + i*Map::mCellWidth,
-                    Map::mOffsetY + j*Map::mCellWidth,
-                    Map::mCellWidth, Map::mCellHeight);
-           switch(Map::mMap[i][j])
-           {
-           case 1:
-               Painter.fillRect(el, QBrush(Qt::red));
-               break;
-           case 2:
-               Painter.fillRect(el, QBrush(Qt::green));
-               break;
-           case 3:
-               Painter.fillRect(el, QBrush(Qt::blue));
-               break;
-           }
-           Painter.drawRect(el);
-       }
-   }
+void View::paintMap()
+{
+    QPainter Painter(this);
+    for(int i = 0; i < Map::mN; ++i)
+    {
+        for(int j = 0; j < Map::mM; ++j)
+        {
+            QRect el(Map::mOffsetX + i*Map::mCellWidth,
+                     Map::mOffsetY + j*Map::mCellWidth,
+                     Map::mCellWidth, Map::mCellHeight);
+            switch(Map::mMap[i][j])
+            {
+            case 1:
+                Painter.fillRect(el, QBrush(Qt::red));
+                break;
+            case 2:
+                Painter.fillRect(el, QBrush(Qt::green));
+                break;
+            case 3:
+                Painter.fillRect(el, QBrush(Qt::blue));
+                break;
+            }
+            Painter.drawRect(el);
+        }
+    }
+}
 
-   //drawing figure
-   int **figureArr = this->mFigure->getFigure();
+void View::paintFigure()
+{
+    QPainter Painter(this);
+    int **figureArr = this->mFigure->getFigure();
 
-   for(int i = 0; i < this->mFigure->getN(); ++i)
-   {
-       for(int j = 0; j < this->mFigure->getM(); ++j)
-       {
-           QRect el(this->mFigure->getOffsetX() + j*Map::mCellHeight,
-                    this->mFigure->getOffsetY() + i*Map::mCellWidth,
-                    Map::mCellWidth, Map::mCellHeight);
+    for(int i = 0; i < this->mFigure->getN(); ++i)
+    {
+        for(int j = 0; j < this->mFigure->getM(); ++j)
+        {
+            QRect el(this->mFigure->getOffsetX() + j*Map::mCellHeight,
+                     this->mFigure->getOffsetY() + i*Map::mCellWidth,
+                     Map::mCellWidth, Map::mCellHeight);
 
-           switch(figureArr[i][j])
-           {
-           case 1:
-               Painter.fillRect(el, QBrush(Qt::red));
-               Painter.drawRect(el);
-               break;
-           case 2:
-               Painter.fillRect(el, QBrush(Qt::green));
-               Painter.drawRect(el);
-               break;
-           case 3:
-               Painter.fillRect(el, QBrush(Qt::blue));
-               Painter.drawRect(el);
-               break;
-           }
-       }
-   }
+            switch(figureArr[i][j])
+            {
+            case 1:
+                Painter.fillRect(el, QBrush(Qt::red));
+                Painter.drawRect(el);
+                break;
+            case 2:
+                Painter.fillRect(el, QBrush(Qt::green));
+                Painter.drawRect(el);
+                break;
+            case 3:
+                Painter.fillRect(el, QBrush(Qt::blue));
+                Painter.drawRect(el);
+                break;
+            }
+        }
+    }
 }
 
 View::~View()
 {
     delete this->mFigureMovementListener;
+    delete this->mGameStateListener;
     delete this->mFigure;
     delete ui;
 }

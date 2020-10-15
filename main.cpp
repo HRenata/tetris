@@ -8,7 +8,7 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     Controller *controller = new Controller();
 
-    View w(controller);
+    View w(controller, controller);
 
     w.show();
     return a.exec();

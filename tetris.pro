@@ -22,6 +22,7 @@ SOURCES += \
     FigureL.cpp \
     FigureO.cpp \
     FigureZ.cpp \
+    Game.cpp \
     Map.cpp \
     View.cpp \
     main.cpp
@@ -32,7 +33,9 @@ HEADERS += \
     FigureL.h \
     FigureO.h \
     FigureZ.h \
+    Game.h \
     ICallbackFigureWatcher.h \
+    ICallbackGameStateWatcher.h \
     Map.h \
     View.h
 
