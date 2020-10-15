@@ -23,6 +23,7 @@ public:
     bool movementDown(Figure *figure) override;
     bool rotation(Figure *figure) override;
     bool hasCollisions(Figure *figure) override;
+    void deleteFilledRows(Figure *figure) override;
     void lockFigure(Figure *figure) override;
 
     bool hasCollisionsWhenMovingLeft(Figure *figure);

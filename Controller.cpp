@@ -1,5 +1,5 @@
 #include "Controller.h"
-
+#include <iostream>
 Controller::Controller()
 {
 
@@ -172,6 +172,43 @@ bool Controller::hasCollisionsWhenRotation(Figure *figure)
         return true;
     }
     return false;
+}
+
+void Controller::deleteFilledRows(Figure *figure)
+{
+    for(int i = 0; i < Map::mM; ++i)
+    {
+        bool rowIsFilled = true;
+        for(int j = 0; j < Map::mN; ++j)
+        {
+            if(Map::mMap[j][i] == 0)
+            {
+                rowIsFilled = false;
+            }
+        }
+
+        if(rowIsFilled)
+        {
+            Game::mScore++;
+            if(i == 0)
+            {
+                for(int j = 0; j < Map::mN; ++j)
+                {
+                    Map::mMap[j][i] = 0;
+                }
+            }
+            else
+            {
+                for(int k = i - 1; k > 0; --k)
+                {
+                    for(int j = 0; j < Map::mN; ++j)
+                    {
+                        Map::mMap[j][k + 1] = Map::mMap[j][k];
+                    }
+                }
+            }
+        }
+    }
 }
 
 bool Controller::movementLeft(Figure *figure)

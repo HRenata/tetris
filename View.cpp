@@ -107,6 +107,8 @@ void View::paintEvent(QPaintEvent *event)
        this->initializeFigure();
    }
 
+   this->mFigureMovementListener->deleteFilledRows(this->mFigure);
+
    this->paintMap();
    this->paintFigure();
 }
