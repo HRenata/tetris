@@ -14,12 +14,12 @@ public:
     Controller();
     ~Controller();
 
-    virtual bool movementLeft(Figure *figure);
-    virtual bool movementRight(Figure *figure);
-    virtual bool movementDown(Figure *figure);
-    virtual bool rotation(Figure *figure);
-    virtual bool hasCollisions(Figure *figure);
-    virtual void lockFigure(Figure *figure);
+    bool movementLeft(Figure *figure) override;
+    bool movementRight(Figure *figure) override;
+    bool movementDown(Figure *figure) override;
+    bool rotation(Figure *figure) override;
+    bool hasCollisions(Figure *figure) override;
+    void lockFigure(Figure *figure) override;
 
     bool hasCollisionsWhenMovingLeft(Figure *figure);
     bool hasCollisionsWhenMovingRight(Figure *figure);
