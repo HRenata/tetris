@@ -1,0 +1,17 @@
+#ifndef GAME_H
+#define GAME_H
+
+
+class Game
+{
+public:
+    static bool mGameIsActive;
+    static int mScore;
+
+    Game (Game &) = delete;
+    void operator= (const Game &) = delete;
+    Game (Game &&) = delete;
+    Game() = delete;
+};
+
+#endif // GAME_H
