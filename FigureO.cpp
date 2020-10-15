@@ -1,4 +1,4 @@
-#include "figureo.h"
+#include "FigureO.h"
 #include <iostream>
 FigureO::FigureO() : Figure()
 {

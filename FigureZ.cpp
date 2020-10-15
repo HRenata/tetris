@@ -1,4 +1,4 @@
-#include "figurez.h"
+#include "FigureZ.h"
 
 FigureZ::FigureZ() : Figure()
 {

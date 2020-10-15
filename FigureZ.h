@@ -1,7 +1,7 @@
 #ifndef FIGUREZ_H
 #define FIGUREZ_H
 
-#include <figure.h>
+#include <Figure.h>
 
 class FigureZ : public Figure
 {

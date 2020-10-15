@@ -1,12 +1,12 @@
 #ifndef ICALLBACKLISTENER_H
 #define ICALLBACKLISTENER_H
 
-#include <figure.h>
-class ICallbackListener
+#include <Figure.h>
+class ICallbackFigureWatcher
 {
 public:
-    ICallbackListener() = default;
-    virtual ~ICallbackListener() = default;
+    ICallbackFigureWatcher() = default;
+    virtual ~ICallbackFigureWatcher() = default;
 
     virtual bool movementLeft(Figure *figure) = 0;
     virtual bool movementRight(Figure *figure) = 0;

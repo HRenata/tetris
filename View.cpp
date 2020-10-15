@@ -1,4 +1,4 @@
-#include "view.h"
+#include "View.h"
 #include "ui_view.h"
 
 #include <QKeyEvent>
@@ -7,7 +7,7 @@
 
 #include <iostream>
 #include <windows.h>
-View::View(ICallbackListener *listener, QWidget *parent)
+View::View(ICallbackFigureWatcher *listener, QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::View)
     , mFigureMovementListener(nullptr)
@@ -22,7 +22,7 @@ View::View(ICallbackListener *listener, QWidget *parent)
     timer->start(1500);
 }
 
-void View::setFigureMovementListener(ICallbackListener *listener)
+void View::setFigureMovementListener(ICallbackFigureWatcher *listener)
 {
     this->mFigureMovementListener = listener;
 }
@@ -50,7 +50,8 @@ void View::initializeFigure()
     }
 }
 
-void View::animate() {
+void View::animate()
+{
     repaint();
 }
 

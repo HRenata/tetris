@@ -1,4 +1,4 @@
-#include "figure.h"
+#include "Figure.h"
 #include <iostream>
 
 Figure::Figure(int **figure, int type)

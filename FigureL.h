@@ -1,7 +1,7 @@
 #ifndef FIGUREL_H
 #define FIGUREL_H
 
-#include <figure.h>
+#include <Figure.h>
 
 class FigureL : public Figure
 {

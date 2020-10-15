@@ -17,24 +17,24 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    controller.cpp \
-    figure.cpp \
-    figurel.cpp \
-    figureo.cpp \
-    figurez.cpp \
-    main.cpp \
-    map.cpp \
-    view.cpp
+    Controller.cpp \
+    Figure.cpp \
+    FigureL.cpp \
+    FigureO.cpp \
+    FigureZ.cpp \
+    Map.cpp \
+    View.cpp \
+    main.cpp
 
 HEADERS += \
-    controller.h \
-    figure.h \
-    figurel.h \
-    figureo.h \
-    figurez.h \
-    icallbacklistener.h \
-    map.h \
-    view.h
+    Controller.h \
+    Figure.h \
+    FigureL.h \
+    FigureO.h \
+    FigureZ.h \
+    ICallbackFigureWatcher.h \
+    Map.h \
+    View.h
 
 FORMS += \
     view.ui

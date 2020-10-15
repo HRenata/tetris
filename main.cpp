@@ -1,7 +1,7 @@
-#include "view.h"
+#include "View.h"
 
 #include <QApplication>
-#include <controller.h>
+#include <Controller.h>
 
 int main(int argc, char *argv[])
 {

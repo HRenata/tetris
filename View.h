@@ -3,11 +3,11 @@
 
 #include <QMainWindow>
 
-#include <map.h>
-#include <figureo.h>
-#include <figurez.h>
-#include <figurel.h>
-#include <icallbacklistener.h>
+#include <Map.h>
+#include <FigureO.h>
+#include <FigureZ.h>
+#include <FigureL.h>
+#include <ICallbackFigureWatcher.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class View; }
@@ -18,9 +18,9 @@ class View : public QMainWindow
     Q_OBJECT
 
 public:
-    View(ICallbackListener *listener, QWidget *parent = nullptr);
+    View(ICallbackFigureWatcher *listener, QWidget *parent = nullptr);
     ~View();
-    void setFigureMovementListener(ICallbackListener *listener);
+    void setFigureMovementListener(ICallbackFigureWatcher *listener);
     void initializeFigure();
 
 public slots:
@@ -33,6 +33,6 @@ protected:
 private:
     Ui::View *ui;
     Figure *mFigure;
-    ICallbackListener *mFigureMovementListener;
+    ICallbackFigureWatcher *mFigureMovementListener;
 };
 #endif // VIEW_H

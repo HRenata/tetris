@@ -1,14 +1,14 @@
 #ifndef CONTROLLER_H
 #define CONTROLLER_H
 
-#include <icallbacklistener.h>
-#include <map.h>
+#include <ICallbackFigureWatcher.h>
+#include <Map.h>
 
-#include <figureo.h>
-#include <figurel.h>
-#include <figurez.h>
+#include <FigureO.h>
+#include <FigureL.h>
+#include <FigureZ.h>
 
-class Controller : public ICallbackListener
+class Controller : public ICallbackFigureWatcher
 {
 public:
     Controller();

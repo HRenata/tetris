@@ -1,4 +1,4 @@
-#include "figurel.h"
+#include "FigureL.h"
 
 FigureL::FigureL() : Figure()
 {
