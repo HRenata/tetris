@@ -23,7 +23,8 @@ View::View(ICallbackFigureWatcher *figureListener,
 
     auto timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(animate()));
-    timer->start(1500);
+
+    timer->start(2000);
 }
 
 void View::setFigureMovementListener(ICallbackFigureWatcher *listener)
@@ -74,13 +75,13 @@ void View::keyPressEvent(QKeyEvent *e)
             this->mFigureMovementListener->lockFigure(this->mFigure);
             this->initializeFigure();
         }
+        else
+        {
+            this->animate();
+        }
         break;
     case Qt::Key_Down:
-        if(!this->mFigureMovementListener->movementDown(this->mFigure))
-        {
-            this->mFigureMovementListener->lockFigure(this->mFigure);
-            this->initializeFigure();
-        }
+        this->animate();
         break;
     case Qt::Key_Left:
         if(!this->mFigureMovementListener->movementLeft(this->mFigure))
@@ -88,12 +89,20 @@ void View::keyPressEvent(QKeyEvent *e)
             this->mFigureMovementListener->lockFigure(this->mFigure);
             this->initializeFigure();
         }
+        else
+        {
+            this->animate();
+        }
         break;
     case Qt::Key_Right:
         if(!this->mFigureMovementListener->movementRight(this->mFigure))
         {
             this->mFigureMovementListener->lockFigure(this->mFigure);
             this->initializeFigure();
+        }
+        else
+        {
+            this->animate();
         }
         break;
     }
