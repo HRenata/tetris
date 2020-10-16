@@ -8,6 +8,7 @@ class Figure
 public:
 
     Figure(int **figure, int type);
+    Figure(const Figure &figure);
     ~Figure();
 
     int **getFigure();

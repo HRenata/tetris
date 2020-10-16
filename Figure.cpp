@@ -20,6 +20,31 @@ Figure::Figure(int **figure, int type)
     this->mIsBlocked = false;
 }
 
+Figure::Figure(const Figure &figure)
+{
+    this->mN = figure.mN;
+    this->mM = figure.mM;
+
+    this->mX = figure.mX;
+    this->mY = figure.mY;
+
+    this->mOffsetX = figure.mOffsetX;
+    this->mOffsetY = figure.mOffsetY;
+
+    this->mFigure = new int*[this->mN];
+    for(int i = 0; i < this->mN; ++i)
+    {
+        this->mFigure[i] = new int[this->mM];
+        for(int j = 0; j < this->mM; ++j)
+        {
+            this->mFigure[i][j] = figure.mFigure[i][j];
+        }
+    }
+
+    this->mType = figure.mType;
+    this->mIsBlocked = figure.mIsBlocked;
+}
+
 Figure::Figure()
 {
     this->mN = 3;
