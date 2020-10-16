@@ -5,8 +5,8 @@
 #include <QPainter>
 #include <QTimer>
 
-#include <iostream>
-#include <windows.h>
+#include <random>
+
 View::View(ICallbackFigureWatcher *figureListener,
            ICallbackGameStateWatcher *gameListener,
            QWidget *parent)
@@ -39,19 +39,28 @@ void View::setGameStateListener(ICallbackGameStateWatcher *listener)
 
 void View::initializeFigure()
 {
-    srand(time(0));
-    int  i = rand() % 3 + 1;
-    switch (i)
+    std::mt19937 gen(time(0));
+    std::uniform_int_distribution<> randomFigure(1, Game::mNumberFigures);
+    std::uniform_int_distribution<> randomRotation(1, 4);
+    int rand = randomFigure(gen);
+
+    if(rand == 3)
     {
-    case 1:
         this->mFigure = new FigureO();
-        break;
-    case 2:
-        this->mFigure = new FigureZ();
-        break;
-    case 3:
+    }
+    else if(rand == 2)
+    {
         this->mFigure = new FigureL();
-        break;
+    }
+    else
+    {
+        this->mFigure = new FigureZ();
+    }
+
+    rand = randomRotation(gen);
+    for(int i = 0; i < rand; ++i)
+    {
+        this->mFigureMovementListener->rotation(this->mFigure);
     }
 
     if(this->mFigureMovementListener->hasCollisions(this->mFigure))
