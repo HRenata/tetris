@@ -7,6 +7,7 @@ class Game
 public:
     static bool mGameIsActive;
     static int mScore;
+    static int mNumberFigures;
 
     Game (Game &) = delete;
     void operator= (const Game &) = delete;
