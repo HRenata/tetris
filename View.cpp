@@ -5,8 +5,6 @@
 #include <QPainter>
 #include <QTimer>
 
-#include <random>
-
 View::View(ICallbackFigureWatcher *figureListener,
            ICallbackGameStateWatcher *gameListener,
            QWidget *parent)
@@ -15,16 +13,25 @@ View::View(ICallbackFigureWatcher *figureListener,
     , mFigureMovementListener(nullptr)
     , mGameStateListener(nullptr)
 {
-    ui->setupUi(this);
+    ui->setupUi(this);    
+    this->setFixedSize(540, 605);
 
     this->setFigureMovementListener(figureListener);
     this->setGameStateListener(gameListener);
     this->initializeFigure();
 
-    auto timer = new QTimer(this);
-    connect(timer, SIGNAL(timeout()), this, SLOT(animate()));
+    this->mTimer = new QTimer(this);
+    connect(this->mTimer, SIGNAL(timeout()), this, SLOT(animate()));
 
-    timer->start(2000);
+    this->mStartButton = new QPushButton("NEW GAME", this);
+    this->mStartButton->setFocusPolicy(Qt::NoFocus);
+    this->mStartButton->setGeometry(QRect(QPoint(78, 563), QSize(180, 30)));
+    connect(this->mStartButton, SIGNAL (clicked()), this, SLOT (handlePushStartButton()));
+
+    this->mPauseButton = new QPushButton("PAUSE", this);
+    this->mPauseButton->setGeometry(QRect(QPoint(278, 563), QSize(180, 30)));
+    this->mPauseButton->setFocusPolicy(Qt::NoFocus);
+    connect(this->mPauseButton, SIGNAL (clicked()), this, SLOT (handlePushPauseButton()));
 }
 
 void View::setFigureMovementListener(ICallbackFigureWatcher *listener)
@@ -39,16 +46,14 @@ void View::setGameStateListener(ICallbackGameStateWatcher *listener)
 
 void View::initializeFigure()
 {
-    std::mt19937 gen(time(0));
-    std::uniform_int_distribution<> randomFigure(1, Game::mNumberFigures);
-    std::uniform_int_distribution<> randomRotation(1, 4);
-    int rand = randomFigure(gen);
+    srand(time(0));
+    int rand_ = 1 + rand() % 3;
 
-    if(rand == 3)
+    if(rand_ == 3)
     {
         this->mFigure = new FigureO();
     }
-    else if(rand == 2)
+    else if(rand_ == 2)
     {
         this->mFigure = new FigureL();
     }
@@ -57,8 +62,8 @@ void View::initializeFigure()
         this->mFigure = new FigureZ();
     }
 
-    rand = randomRotation(gen);
-    for(int i = 0; i < rand; ++i)
+    rand_ = 1 + rand() % 4;
+    for(int i = 0; i < rand_; ++i)
     {
         this->mFigureMovementListener->rotation(this->mFigure);
     }
@@ -66,13 +71,35 @@ void View::initializeFigure()
     if(this->mFigureMovementListener->hasCollisions(this->mFigure))
     {
         //game over
-        Game::mGameIsActive = false;
+        this->mGameStateListener->endGame();
     }
 }
 
 void View::animate()
 {
-    repaint();
+    if(!Game::mGameIsPaused)
+    {
+        repaint();
+    }
+}
+
+void View::handlePushStartButton()
+{
+    this->mGameStateListener->startGame();
+
+    this->mTimer->start(2000);
+}
+
+void View::handlePushPauseButton()
+{
+    if(Game::mGameIsPaused)
+    {
+        this->mGameStateListener->continueGame();
+    }
+    else
+    {
+        this->mGameStateListener->pauseGame();
+    }
 }
 
 void View::keyPressEvent(QKeyEvent *e)
@@ -114,21 +141,32 @@ void View::keyPressEvent(QKeyEvent *e)
             this->animate();
         }
         break;
+    case Qt::Key_Space:
+        this->handlePushPauseButton();
+        break;
     }
 }
 
 void View::paintEvent(QPaintEvent *event)
 {
-   if(!this->mFigureMovementListener->movementDown(this->mFigure))
-   {
-       this->mFigureMovementListener->lockFigure(this->mFigure);
-       this->initializeFigure();
-   }
+    if(Game::mGameIsActive)
+    {
+        if(!this->mFigureMovementListener->movementDown(this->mFigure))
+        {
+            this->mFigureMovementListener->lockFigure(this->mFigure);
+            this->initializeFigure();
+        }
 
-   this->mFigureMovementListener->deleteFilledRows(this->mFigure);
+        this->mFigureMovementListener->deleteFilledRows(this->mFigure);
+    }
 
-   this->paintMap();
-   this->paintFigure();
+    this->paintMap();
+
+    if(Game::mGameIsActive)
+    {
+        this->paintFigure();
+    }
+
 }
 
 void View::paintMap()
@@ -195,6 +233,9 @@ View::~View()
     delete this->mFigureMovementListener;
     delete this->mGameStateListener;
     delete this->mFigure;
+    delete this->mStartButton;
+    delete this->mPauseButton;
+    delete this->mTimer;
     delete ui;
 }
 

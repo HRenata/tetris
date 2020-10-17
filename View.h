@@ -2,6 +2,7 @@
 #define VIEW_H
 
 #include <QMainWindow>
+#include <QPushButton>
 
 #include <Map.h>
 #include <Game.h>
@@ -30,6 +31,8 @@ public:
 
 public slots:
     void animate();
+    void handlePushStartButton();
+    void handlePushPauseButton();
 
 protected:
     void keyPressEvent (QKeyEvent *e) override;
@@ -39,6 +42,9 @@ protected:
 
 private:
     Ui::View *ui;
+    QTimer *mTimer;
+    QPushButton *mStartButton;
+    QPushButton *mPauseButton;
     Figure *mFigure;
     ICallbackFigureWatcher *mFigureMovementListener;
     ICallbackGameStateWatcher *mGameStateListener;
