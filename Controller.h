@@ -40,6 +40,8 @@ public:
     void startGame() override;
     void resetGame() override;
     void endGame() override;
+    void pauseGame() override;
+    void continueGame() override;
 };
 
 #endif // CONTROLLER_H

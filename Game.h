@@ -6,6 +6,7 @@ class Game
 {
 public:
     static bool mGameIsActive;
+    static bool mGameIsPaused;
     static int mScore;
     static int mNumberFigures;
 

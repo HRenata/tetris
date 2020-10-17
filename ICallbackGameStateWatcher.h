@@ -11,6 +11,8 @@ public:
     virtual void startGame() = 0;
     virtual void resetGame() = 0;
     virtual void endGame() = 0;
+    virtual void pauseGame() = 0;
+    virtual void continueGame() = 0;
 };
 
 #endif // ICALLBACKGAMESTATEWATCHER_H

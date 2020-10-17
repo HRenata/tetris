@@ -374,3 +374,13 @@ void Controller::endGame()
 {
     Game::mGameIsActive = false;
 }
+
+void Controller::pauseGame()
+{
+    Game::mGameIsPaused = true;
+}
+
+void Controller::continueGame()
+{
+    Game::mGameIsPaused = false;
+}
