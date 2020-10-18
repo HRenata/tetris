@@ -354,6 +354,7 @@ bool Controller::isPossibleMovementDown(Figure *figure)
 
 void Controller::startGame()
 {
+    Map::clearMap();
     Game::mGameIsActive = true;
     Game::mScore = 0;
     for(int i = 0; i < Map::mN; ++i)
@@ -373,7 +374,6 @@ void Controller::resetGame()
 void Controller::endGame()
 {
     Game::mGameIsActive = false;
-    Map::clearMap();
 }
 
 void Controller::pauseGame()

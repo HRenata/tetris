@@ -22,7 +22,7 @@ View::View(ICallbackFigureWatcher *figureListener,
 
     this->mTimer = new QTimer(this);
     connect(this->mTimer, SIGNAL(timeout()), this, SLOT(animate()));
-    this->mTimer->start(2000);
+    this->mTimer->start(1000);
 
     this->mStartButton = new QPushButton("NEW GAME", this);
     this->mStartButton->setFocusPolicy(Qt::NoFocus);
@@ -69,9 +69,9 @@ void View::initializeFigure()
         this->mFigureMovementListener->rotation(this->mFigure);
     }
 
+    //game over
     if(this->mFigureMovementListener->hasCollisions(this->mFigure))
     {
-        //game over
         this->mGameStateListener->endGame();
     }
 }
@@ -99,6 +99,7 @@ void View::handlePushStartButton()
 {
     this->mGameStateListener->startGame();
     this->initializeFigure();
+    Game::mGameIsPaused = false;
     this->animate();
 }
 
@@ -116,51 +117,50 @@ void View::handlePushPauseButton()
 
 void View::keyPressEvent(QKeyEvent *e)
 {
-    switch (e->key()) {
-    case Qt::Key_Up:
-        if(!this->mFigureMovementListener->rotation(this->mFigure))
+    if(Game::mGameIsActive)
+    {
+        switch (e->key())
         {
-            this->mFigureMovementListener->lockFigure(this->mFigure);
-            this->initializeFigure();
+        case Qt::Key_Up:
+            if(!this->mFigureMovementListener->rotation(this->mFigure))
+            {
+                this->mFigureMovementListener->lockFigure(this->mFigure);
+                this->initializeFigure();
+            }
+            else
+            {
+                repaint();
+            }
+            break;
+        case Qt::Key_Down:
+            this->animate();
+            break;
+        case Qt::Key_Left:
+            if(!this->mFigureMovementListener->movementLeft(this->mFigure))
+            {
+                this->mFigureMovementListener->lockFigure(this->mFigure);
+                this->initializeFigure();
+            }
+            else
+            {
+                repaint();
+            }
+            break;
+        case Qt::Key_Right:
+            if(!this->mFigureMovementListener->movementRight(this->mFigure))
+            {
+                this->mFigureMovementListener->lockFigure(this->mFigure);
+                this->initializeFigure();
+            }
+            else
+            {
+                repaint();
+            }
+            break;
+        case Qt::Key_Space:
+            this->handlePushPauseButton();
+            break;
         }
-        else
-        {
-            repaint();
-            //this->animate();
-        }
-        break;
-    case Qt::Key_Down:
-        this->animate();
-        break;
-    case Qt::Key_Left:
-        if(!this->mFigureMovementListener->movementLeft(this->mFigure))
-        {
-            this->mFigureMovementListener->lockFigure(this->mFigure);
-            this->initializeFigure();
-        }
-        else
-        {
-
-            repaint();
-            //this->animate();
-        }
-        break;
-    case Qt::Key_Right:
-        if(!this->mFigureMovementListener->movementRight(this->mFigure))
-        {
-            this->mFigureMovementListener->lockFigure(this->mFigure);
-            this->initializeFigure();
-        }
-        else
-        {
-
-            repaint();
-            //this->animate();
-        }
-        break;
-    case Qt::Key_Space:
-        this->handlePushPauseButton();
-        break;
     }
 }
 
@@ -169,19 +169,25 @@ void View::paintEvent(QPaintEvent *event)
     QPainter Painter(this);
     Painter.setFont(QFont("Arial", 18));
     QString result = QString::asprintf("Score : %d", Game::mScore);
-    Painter.drawText(QRect(355, 15, 100, 30), Qt::AlignRight, result);
+    Painter.drawText(QRect(320, 15, 140, 30), Qt::AlignRight, result);
 
-    this->paintMap();
+    this->paintMap(Painter);
 
     if(Game::mGameIsActive)
     {
-        this->paintFigure();
+        this->paintFigure(Painter);
+    }
+    else if(!Game::mGameIsActive
+            && this->mFigureMovementListener->hasCollisions(this->mFigure))
+    {
+        Painter.fillRect(QRect(80, 245, 15 * 25, 90), QBrush(Qt::magenta));
+        result = QString::asprintf("GAME OVER\nScore : %d", Game::mScore);
+        Painter.drawText(QRect(80, 245, 15 * 25, 90), Qt::AlignCenter, result);
     }
 }
 
-void View::paintMap()
+void View::paintMap(QPainter &Painter)
 {
-    QPainter Painter(this);
     for(int i = 0; i < Map::mN; ++i)
     {
         for(int j = 0; j < Map::mM; ++j)
@@ -206,9 +212,8 @@ void View::paintMap()
     }
 }
 
-void View::paintFigure()
+void View::paintFigure(QPainter &Painter)
 {
-    QPainter Painter(this);
     int **figureArr = this->mFigure->getFigure();
 
     for(int i = 0; i < this->mFigure->getN(); ++i)

@@ -37,8 +37,8 @@ public slots:
 protected:
     void keyPressEvent (QKeyEvent *e) override;
     void paintEvent(QPaintEvent *event) override;
-    void paintMap();
-    void paintFigure();
+    void paintMap(QPainter &Painter);
+    void paintFigure(QPainter &Painter);
 
 private:
     Ui::View *ui;
