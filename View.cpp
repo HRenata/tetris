@@ -161,6 +161,11 @@ void View::keyPressEvent(QKeyEvent *e)
 
 void View::paintEvent(QPaintEvent *event)
 {
+    QPainter Painter(this);
+    Painter.setFont(QFont("Arial", 18));
+    QString result = QString::asprintf("Score : %d", Game::mScore);
+    Painter.drawText(QRect(355, 15, 100, 30), Qt::AlignRight, result);
+
     this->paintMap();
 
     if(Game::mGameIsActive)
