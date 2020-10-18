@@ -373,6 +373,7 @@ void Controller::resetGame()
 void Controller::endGame()
 {
     Game::mGameIsActive = false;
+    Map::clearMap();
 }
 
 void Controller::pauseGame()

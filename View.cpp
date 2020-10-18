@@ -22,6 +22,7 @@ View::View(ICallbackFigureWatcher *figureListener,
 
     this->mTimer = new QTimer(this);
     connect(this->mTimer, SIGNAL(timeout()), this, SLOT(animate()));
+    this->mTimer->start(2000);
 
     this->mStartButton = new QPushButton("NEW GAME", this);
     this->mStartButton->setFocusPolicy(Qt::NoFocus);
@@ -80,14 +81,25 @@ void View::animate()
     if(!Game::mGameIsPaused)
     {
         repaint();
+
+        if(Game::mGameIsActive)
+        {
+            if(!this->mFigureMovementListener->movementDown(this->mFigure))
+            {
+                this->mFigureMovementListener->lockFigure(this->mFigure);
+                this->initializeFigure();
+            }
+
+            this->mFigureMovementListener->deleteFilledRows(this->mFigure);
+        }
     }
 }
 
 void View::handlePushStartButton()
 {
     this->mGameStateListener->startGame();
-
-    this->mTimer->start(2000);
+    this->initializeFigure();
+    this->animate();
 }
 
 void View::handlePushPauseButton()
@@ -149,24 +161,12 @@ void View::keyPressEvent(QKeyEvent *e)
 
 void View::paintEvent(QPaintEvent *event)
 {
-    if(Game::mGameIsActive)
-    {
-        if(!this->mFigureMovementListener->movementDown(this->mFigure))
-        {
-            this->mFigureMovementListener->lockFigure(this->mFigure);
-            this->initializeFigure();
-        }
-
-        this->mFigureMovementListener->deleteFilledRows(this->mFigure);
-    }
-
     this->paintMap();
 
     if(Game::mGameIsActive)
     {
         this->paintFigure();
     }
-
 }
 
 void View::paintMap()
