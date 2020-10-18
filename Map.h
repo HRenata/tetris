@@ -12,6 +12,8 @@ public:
     static int mOffsetX;
     static int mOffsetY;
 
+    static void clearMap();
+
     Map (Map &) = delete;
     void operator= (const Map &) = delete;
     Map (Map &&) = delete;
