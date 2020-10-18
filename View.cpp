@@ -125,7 +125,8 @@ void View::keyPressEvent(QKeyEvent *e)
         }
         else
         {
-            this->animate();
+            repaint();
+            //this->animate();
         }
         break;
     case Qt::Key_Down:
@@ -139,7 +140,9 @@ void View::keyPressEvent(QKeyEvent *e)
         }
         else
         {
-            this->animate();
+
+            repaint();
+            //this->animate();
         }
         break;
     case Qt::Key_Right:
@@ -150,7 +153,9 @@ void View::keyPressEvent(QKeyEvent *e)
         }
         else
         {
-            this->animate();
+
+            repaint();
+            //this->animate();
         }
         break;
     case Qt::Key_Space:
