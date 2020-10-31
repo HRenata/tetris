@@ -4,6 +4,7 @@
 #include <QKeyEvent>
 #include <QPainter>
 #include <QTimer>
+#include <QMessageBox>
 
 View::View(ICallbackFigureWatcher *figureListener,
            ICallbackGameStateWatcher *gameListener,
@@ -15,6 +16,19 @@ View::View(ICallbackFigureWatcher *figureListener,
 {
     ui->setupUi(this);    
     this->setFixedSize(540, 605);
+
+    QAction *newGameAction = new QAction(tr("&New Game"), this);
+    connect(newGameAction, SIGNAL(triggered()), this, SLOT(newGame()));
+    QAction *exitAction = new QAction(tr("&Exit"), this);
+    connect(exitAction, SIGNAL(triggered()), this, SLOT(endGame()));
+    QAction *aboutAction = new QAction(tr("&About"), this);
+    connect(aboutAction, SIGNAL(triggered()), this, SLOT(aboutGame()));
+
+    QMenu *menu = menuBar()->addMenu("Menu");
+    menu->addAction(newGameAction);
+    menu->addAction(exitAction);
+    menu->addSeparator();
+    menu->addAction(aboutAction);
 
     this->setFigureMovementListener(figureListener);
     this->setGameStateListener(gameListener);
@@ -33,6 +47,24 @@ View::View(ICallbackFigureWatcher *figureListener,
     this->mPauseButton->setGeometry(QRect(QPoint(278, 563), QSize(180, 30)));
     this->mPauseButton->setFocusPolicy(Qt::NoFocus);
     connect(this->mPauseButton, SIGNAL (clicked()), this, SLOT (handlePushPauseButton()));
+}
+
+void View::newGame()
+{
+    this->mGameStateListener->startGame();
+    this->initializeFigure();
+    Game::mGameIsPaused = false;
+    this->animate();
+}
+
+void View::endGame()
+{
+    this->close();
+}
+
+void View::aboutGame()
+{
+    QMessageBox::information(0, "Information", "Operation Complete");
 }
 
 void View::setFigureMovementListener(ICallbackFigureWatcher *listener)
@@ -69,7 +101,6 @@ void View::initializeFigure()
         this->mFigureMovementListener->rotation(this->mFigure);
     }
 
-    //game over
     if(this->mFigureMovementListener->hasCollisions(this->mFigure))
     {
         this->mGameStateListener->endGame();
@@ -97,10 +128,7 @@ void View::animate()
 
 void View::handlePushStartButton()
 {
-    this->mGameStateListener->startGame();
-    this->initializeFigure();
-    Game::mGameIsPaused = false;
-    this->animate();
+    this->newGame();
 }
 
 void View::handlePushPauseButton()
@@ -169,7 +197,7 @@ void View::paintEvent(QPaintEvent *event)
     QPainter Painter(this);
     Painter.setFont(QFont("Arial", 18));
     QString result = QString::asprintf("Score : %d", Game::mScore);
-    Painter.drawText(QRect(320, 15, 140, 30), Qt::AlignRight, result);
+    Painter.drawText(QRect(320, 20, 140, 30), Qt::AlignRight, result);
 
     this->paintMap(Painter);
 

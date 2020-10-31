@@ -33,6 +33,9 @@ public slots:
     void animate();
     void handlePushStartButton();
     void handlePushPauseButton();
+    void newGame();
+    void endGame();
+    void aboutGame();
 
 protected:
     void keyPressEvent (QKeyEvent *e) override;
