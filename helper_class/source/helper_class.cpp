@@ -1,4 +1,4 @@
-#include "Map.h"
+#include "helper_class.h"
 
 int Map::mMap[mN][mM] ={{0}};
 

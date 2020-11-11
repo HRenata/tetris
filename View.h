@@ -4,7 +4,7 @@
 #include <QMainWindow>
 #include <QPushButton>
 
-#include <Map.h>
+#include <helper_class/include/helper_class.h>
 #include <Game.h>
 #include <FigureO.h>
 #include <FigureZ.h>

@@ -1,7 +1,9 @@
-#ifndef MAP_H
-#define MAP_H
+#ifndef HELPER_CLASS_H
+#define HELPER_CLASS_H
 
-class Map
+#include "helper_class_global.h"
+
+class HELPER_CLASS_EXPORT Map
 {
 public:
     static const int mN = 15;
@@ -20,4 +22,5 @@ public:
     Map() = delete;
 };
 
-#endif // MAP_H
+
+#endif // HELPER_CLASS_H

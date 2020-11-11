@@ -1,7 +1,7 @@
 #ifndef FIGURE_H
 #define FIGURE_H
 
-#include <Map.h>
+#include <helper_class/include/helper_class.h>
 
 class Figure
 {

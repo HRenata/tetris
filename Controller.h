@@ -3,7 +3,7 @@
 
 #include <ICallbackFigureWatcher.h>
 #include <ICallbackGameStateWatcher.h>
-#include <Map.h>
+#include <helper_class/include/helper_class.h>
 #include <Game.h>
 
 #include <FigureO.h>

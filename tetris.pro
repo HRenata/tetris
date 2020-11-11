@@ -23,7 +23,6 @@ SOURCES += \
     FigureO.cpp \
     FigureZ.cpp \
     Game.cpp \
-    Map.cpp \
     View.cpp \
     main.cpp
 
@@ -36,8 +35,9 @@ HEADERS += \
     Game.h \
     ICallbackFigureWatcher.h \
     ICallbackGameStateWatcher.h \
-    Map.h \
-    View.h
+    View.h \
+    helper_class/include/helper_class.h \
+    helper_class/include/helper_class_global.h
 
 FORMS += \
     view.ui
@@ -46,3 +46,11 @@ FORMS += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/helper_class/release/ -lhelper_class
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/helper_class/debug/ -lhelper_class
+
+INCLUDEPATH += $$PWD/helper_class/debug
+DEPENDPATH += $$PWD/helper_class/debug
+
+
