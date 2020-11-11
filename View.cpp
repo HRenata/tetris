@@ -8,6 +8,7 @@
 #include <QLibrary>
 
 typedef QString (*getWindowTitle)();
+typedef void (*about)();
 
 View::View(ICallbackFigureWatcher *figureListener,
            ICallbackGameStateWatcher *gameListener,
@@ -75,7 +76,11 @@ void View::endGame()
 
 void View::aboutGame()
 {
-    QMessageBox::information(0, "Information", "Operation Complete");
+    //uploading about library at run-time
+    QLibrary *aboutLib = new QLibrary("about");
+    about showWindowAboutProgramm = (about)aboutLib->resolve("about");
+    showWindowAboutProgramm();
+    delete aboutLib;
 }
 
 void View::setFigureMovementListener(ICallbackFigureWatcher *listener)

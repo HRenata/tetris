@@ -39,7 +39,9 @@ HEADERS += \
     helper_class/include/helper_class.h \
     helper_class/include/helper_class_global.h \
     helper/include/helper.h \
-    helper/include/helper_global.h
+    helper/include/helper_global.h \
+    about/include/about.h \
+    about/include/About_global.h
 
 FORMS += \
     view.ui
@@ -49,16 +51,27 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/helper_class/release/ -lhelper_class
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/helper_class/debug/ -lhelper_class
+win32{
+    CONFIG(release, debug|release) {
+        LIBS += \
+            -L$$PWD/helper_class/release/ -lhelper_class \
+            -L$$PWD/helper/release/ -lhelper \
+            -L$$PWD/about/release/ -labout
+    }
+    else {
+        LIBS += \
+            -L$$PWD/helper_class/debug/ -lhelper_class \
+            -L$$PWD/helper/debug/ -lhelper \
+            -L$$PWD/about/debug/ -labout
+    }
+}
 
-INCLUDEPATH += $$PWD/helper_class/debug
-DEPENDPATH += $$PWD/helper_class/debug
+INCLUDEPATH += \
+    $$PWD/helper_class/include \
+    $$PWD/helper/include \
+    $$PWD/about/include
 
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/helper/release/ -lhelper
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/helper/debug/ -lhelper
-
-INCLUDEPATH += $$PWD/helper/debug
-DEPENDPATH += $$PWD/helper/debug
-
-
+DEPENDPATH += \
+    $$PWD/helper_class/include \
+    $$PWD/helper/include \
+    $$PWD/about/include
