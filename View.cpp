@@ -5,6 +5,9 @@
 #include <QPainter>
 #include <QTimer>
 #include <QMessageBox>
+#include <QLibrary>
+
+typedef QString (*getWindowTitle)();
 
 View::View(ICallbackFigureWatcher *figureListener,
            ICallbackGameStateWatcher *gameListener,
@@ -16,6 +19,14 @@ View::View(ICallbackFigureWatcher *figureListener,
 {
     ui->setupUi(this);    
     this->setFixedSize(540, 605);
+
+    //uploading helper library at run-time
+    QLibrary *titleLib = new QLibrary("helper");
+    getWindowTitle getWindowTitle_ = (getWindowTitle)titleLib->resolve("getWindowTitle");
+    QString windowTitle = getWindowTitle_();
+    delete titleLib;
+
+    this->setWindowTitle(windowTitle);
 
     QAction *newGameAction = new QAction(tr("&New Game"), this);
     connect(newGameAction, SIGNAL(triggered()), this, SLOT(newGame()));

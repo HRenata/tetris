@@ -37,7 +37,9 @@ HEADERS += \
     ICallbackGameStateWatcher.h \
     View.h \
     helper_class/include/helper_class.h \
-    helper_class/include/helper_class_global.h
+    helper_class/include/helper_class_global.h \
+    helper/include/helper.h \
+    helper/include/helper_global.h
 
 FORMS += \
     view.ui
@@ -52,5 +54,11 @@ else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/helper_class/debug/ -lh
 
 INCLUDEPATH += $$PWD/helper_class/debug
 DEPENDPATH += $$PWD/helper_class/debug
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/helper/release/ -lhelper
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/helper/debug/ -lhelper
+
+INCLUDEPATH += $$PWD/helper/debug
+DEPENDPATH += $$PWD/helper/debug
 
 
