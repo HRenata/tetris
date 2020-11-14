@@ -13,7 +13,7 @@ public:
     virtual bool movementDown(Figure *figure) = 0;
     virtual bool rotation(Figure *figure) = 0;
     virtual bool hasCollisions(Figure *figure) = 0;
-    virtual void deleteFilledRows(Figure *figure) = 0;
+    virtual void deleteFilledRows() = 0;
     virtual void lockFigure(Figure *figure) = 0;
 };
 

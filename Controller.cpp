@@ -174,7 +174,7 @@ bool Controller::hasCollisionsWhenRotation(Figure *figure)
     return false;
 }
 
-void Controller::deleteFilledRows(Figure *figure)
+void Controller::deleteFilledRows()
 {
     for(int i = 0; i < Map::mM; ++i)
     {

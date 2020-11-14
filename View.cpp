@@ -175,7 +175,7 @@ void View::animate()
                 this->initializeFigure();
             }
 
-            this->mFigureMovementListener->deleteFilledRows(this->mFigure);
+            this->mFigureMovementListener->deleteFilledRows();
         }
     }
 }
@@ -249,6 +249,7 @@ void View::keyPressEvent(QKeyEvent *e)
 void View::paintEvent(QPaintEvent *event)
 {
     QPainter Painter(this);
+    Painter.setFont(QFont("Arial", 18));
     QString result = QString::asprintf("Score : %d", Game::mScore);
     Painter.drawText(QRect(320, 20, 140, 30), Qt::AlignRight, result);
 
