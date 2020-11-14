@@ -3,14 +3,19 @@
 
 #include <QMainWindow>
 #include <QPushButton>
+#include <QLibrary>
+#include <QDir>
+#include <QPluginLoader>
+#include <QPen>
 
-#include <helper_class/include/helper_class.h>
+#include <../helper_class/helper_class.h>
 #include <Game.h>
 #include <FigureO.h>
 #include <FigureZ.h>
 #include <FigureL.h>
 #include <ICallbackFigureWatcher.h>
 #include <ICallbackGameStateWatcher.h>
+#include <interface.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class View; }
@@ -36,6 +41,7 @@ public slots:
     void newGame();
     void endGame();
     void aboutGame();
+    void applyPlugin();
 
 protected:
     void keyPressEvent (QKeyEvent *e) override;
@@ -51,5 +57,7 @@ private:
     Figure *mFigure;
     ICallbackFigureWatcher *mFigureMovementListener;
     ICallbackGameStateWatcher *mGameStateListener;
+
+    QVector< Interface* > plugins;
 };
 #endif // VIEW_H

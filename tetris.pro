@@ -35,13 +35,15 @@ HEADERS += \
     Game.h \
     ICallbackFigureWatcher.h \
     ICallbackGameStateWatcher.h \
-    View.h \
-    helper_class/include/helper_class.h \
-    helper_class/include/helper_class_global.h \
-    helper/include/helper.h \
-    helper/include/helper_global.h \
-    about/include/about.h \
-    about/include/About_global.h
+    View.h\
+    interface.h \
+    ../helper_class/helper_class.h \
+    ../helper_class/helper_class_global.h \
+    ../helper/helper.h \
+    ../helper/helper_global.h \
+    ../About/about.h \
+    ../About/About_global.h
+
 
 FORMS += \
     view.ui
@@ -54,24 +56,24 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 win32{
     CONFIG(release, debug|release) {
         LIBS += \
-            -L$$PWD/helper_class/release/ -lhelper_class \
-            -L$$PWD/helper/release/ -lhelper \
-            -L$$PWD/about/release/ -labout
+            -L../helper_class/release/ -lhelper_class \
+            -L../helper/release/ -lhelper \
+            -L../About/release/ -labout
     }
     else {
         LIBS += \
-            -L$$PWD/helper_class/debug/ -lhelper_class \
-            -L$$PWD/helper/debug/ -lhelper \
-            -L$$PWD/about/debug/ -labout
+            -L../helper_class/debug/ -lhelper_class \
+            -L../helper/debug/ -lhelper \
+            -L../About/debug/ -labout
     }
 }
 
 INCLUDEPATH += \
-    $$PWD/helper_class/include \
-    $$PWD/helper/include \
-    $$PWD/about/include
+    ../helper_class \
+    ../helper \
+    ../About
 
 DEPENDPATH += \
-    $$PWD/helper_class/include \
-    $$PWD/helper/include \
-    $$PWD/about/include
+    ../helper_class \
+    ../helper \
+    ../About

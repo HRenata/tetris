@@ -6,6 +6,7 @@
 #include <QTimer>
 #include <QMessageBox>
 #include <QLibrary>
+#include <iostream>
 
 typedef QString (*getWindowTitle)();
 typedef void (*about)();
@@ -41,6 +42,26 @@ View::View(ICallbackFigureWatcher *figureListener,
     menu->addAction(exitAction);
     menu->addSeparator();
     menu->addAction(aboutAction);
+
+
+    QMenu *modeMenu = menuBar()->addMenu("Mode");
+    QDir dir("C:\\Users\\User\\Documents\\plugins\\release");
+
+    foreach(QString str, dir.entryList(QDir::Files))
+    {
+        QPluginLoader loader(dir.absoluteFilePath(str));
+        QObject *object=qobject_cast<QObject*>(loader.instance());//извлекаем плагин
+        Interface *plugin=qobject_cast<Interface*>(object);//приводим к интерфейсу игры
+        if(plugin)
+        {
+            plugins.push_back(plugin);
+            const char * namePlugin = plugin->pluginName().toLocal8Bit().data();
+            QAction *applyPlugin = new QAction(tr(namePlugin), this);
+            connect(applyPlugin, SIGNAL(triggered()), this, SLOT(applyPlugin()));
+            modeMenu->addAction(applyPlugin);
+        }
+    }
+
 
     this->setFigureMovementListener(figureListener);
     this->setGameStateListener(gameListener);
@@ -81,6 +102,23 @@ void View::aboutGame()
     about showWindowAboutProgramm = (about)aboutLib->resolve("about");
     showWindowAboutProgramm();
     delete aboutLib;
+}
+
+void View::applyPlugin()
+{
+    int subMode = 0;
+    QAction *action = qobject_cast<QAction *>(sender());
+    for(int i = 0; i < plugins.size(); ++i)
+    {
+        if(action->text() == plugins[i]->pluginName())
+        {
+            subMode = i;
+        }
+    }
+
+    QPalette palette = plugins[subMode]->changeView();
+    this->setPalette(palette);
+    this->repaint();
 }
 
 void View::setFigureMovementListener(ICallbackFigureWatcher *listener)
@@ -211,7 +249,6 @@ void View::keyPressEvent(QKeyEvent *e)
 void View::paintEvent(QPaintEvent *event)
 {
     QPainter Painter(this);
-    Painter.setFont(QFont("Arial", 18));
     QString result = QString::asprintf("Score : %d", Game::mScore);
     Painter.drawText(QRect(320, 20, 140, 30), Qt::AlignRight, result);
 
