@@ -43,25 +43,28 @@ View::View(ICallbackFigureWatcher *figureListener,
     menu->addSeparator();
     menu->addAction(aboutAction);
 
-
+    //plugins
     QMenu *modeMenu = menuBar()->addMenu("Mode");
-    QDir dir("C:\\Users\\User\\Documents\\plugins\\release");
+    //if(release){
+    QDir dir("..\\plugins\\release");
+    //else {
+    //QDir dir("..\\plugins\\debug");
+    //}
 
-    foreach(QString str, dir.entryList(QDir::Files))
+   foreach(QString str, dir.entryList(QDir::Files))
     {
         QPluginLoader loader(dir.absoluteFilePath(str));
         QObject *object=qobject_cast<QObject*>(loader.instance());//извлекаем плагин
         Interface *plugin=qobject_cast<Interface*>(object);//приводим к интерфейсу игры
         if(plugin)
         {
-            plugins.push_back(plugin);
+            this->mPlugins.push_back(plugin);
             const char * namePlugin = plugin->pluginName().toLocal8Bit().data();
             QAction *applyPlugin = new QAction(tr(namePlugin), this);
             connect(applyPlugin, SIGNAL(triggered()), this, SLOT(applyPlugin()));
             modeMenu->addAction(applyPlugin);
         }
     }
-
 
     this->setFigureMovementListener(figureListener);
     this->setGameStateListener(gameListener);
@@ -108,15 +111,15 @@ void View::applyPlugin()
 {
     int subMode = 0;
     QAction *action = qobject_cast<QAction *>(sender());
-    for(int i = 0; i < plugins.size(); ++i)
+    for(int i = 0; i < this->mPlugins.size(); ++i)
     {
-        if(action->text() == plugins[i]->pluginName())
+        if(action->text() == this->mPlugins[i]->pluginName())
         {
             subMode = i;
         }
     }
 
-    QPalette palette = plugins[subMode]->changeView();
+    QPalette palette = this->mPlugins[subMode]->changeView();
     this->setPalette(palette);
     this->repaint();
 }

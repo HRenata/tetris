@@ -58,6 +58,6 @@ private:
     ICallbackFigureWatcher *mFigureMovementListener;
     ICallbackGameStateWatcher *mGameStateListener;
 
-    QVector< Interface* > plugins;
+    QVector< Interface* > mPlugins;
 };
 #endif // VIEW_H
