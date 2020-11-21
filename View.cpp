@@ -45,15 +45,19 @@ View::View(ICallbackFigureWatcher *figureListener,
 
     //plugins
     QMenu *modeMenu = menuBar()->addMenu("Mode");
-    //if(release){
-    QDir dir("..\\plugins\\release");
-    //else {
-    //QDir dir("..\\plugins\\debug");
-    //}
+    QDir *dir;dir = new QDir("..\\plugins\\debug");
+    #ifdef QT_DEBUG
+        dir = new QDir("..\\plugins\\debug");
+    #else
+        #ifdef QT_RELEASE
+           dir = new QDir("..\\plugins\\release");
+        #endif
+    #endif
 
-   foreach(QString str, dir.entryList(QDir::Files))
+
+    foreach(QString str, dir->entryList(QDir::Files))
     {
-        QPluginLoader loader(dir.absoluteFilePath(str));
+        QPluginLoader loader(dir->absoluteFilePath(str));
         QObject *object=qobject_cast<QObject*>(loader.instance());//извлекаем плагин
         Interface *plugin=qobject_cast<Interface*>(object);//приводим к интерфейсу игры
         if(plugin)
@@ -65,6 +69,7 @@ View::View(ICallbackFigureWatcher *figureListener,
             modeMenu->addAction(applyPlugin);
         }
     }
+    delete dir;
 
     this->setFigureMovementListener(figureListener);
     this->setGameStateListener(gameListener);
