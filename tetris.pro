@@ -19,9 +19,6 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     Controller.cpp \
     Figure.cpp \
-    FigureL.cpp \
-    FigureO.cpp \
-    FigureZ.cpp \
     Game.cpp \
     View.cpp \
     main.cpp
@@ -29,9 +26,6 @@ SOURCES += \
 HEADERS += \
     Controller.h \
     Figure.h \
-    FigureL.h \
-    FigureO.h \
-    FigureZ.h \
     Game.h \
     ICallbackFigureWatcher.h \
     ICallbackGameStateWatcher.h \

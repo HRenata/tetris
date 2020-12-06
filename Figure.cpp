@@ -1,7 +1,7 @@
 #include "Figure.h"
 #include <iostream>
 
-Figure::Figure(int **figure, int type)
+Figure::Figure(int **figure, int type, Qt::GlobalColor color)
 {
     this->mN = 3;
     this->mM = 3;
@@ -15,6 +15,7 @@ Figure::Figure(int **figure, int type)
 
     this->mFigure = new int*[this->mN];
     this->setFigure(figure);
+    this->mColor = color;
     this->mType = type;
 
     this->mIsBlocked = false;
@@ -42,10 +43,35 @@ Figure::Figure(const Figure &figure)
     }
 
     this->mType = figure.mType;
+    this->mColor = figure.mColor;
     this->mIsBlocked = figure.mIsBlocked;
 }
 
 Figure::Figure()
+{
+    this->mN = 3;
+    this->mM = 3;
+
+    //change
+    this->mX = 1;
+    this->mY = Map::mN / 2;
+
+    this->mOffsetX = Map::mOffsetX + (this->mY - 1) * Map::mCellWidth;
+    this->mOffsetY = Map::mOffsetY;
+
+    this->mFigure = new int*[this->mN];
+    for(int i = 0; i < this->mN; ++i)
+    {
+        this->mFigure[i] = new int[this->mM];
+        for(int j = 0; j < this->mM; ++j)
+        {
+            this->mFigure[i][j] = 0;
+        }
+    }
+    this->mIsBlocked = false;
+}
+
+void Figure::reInitialize()
 {
     this->mN = 3;
     this->mM = 3;
@@ -132,6 +158,26 @@ void Figure::setOffsetY(int offsetY)
 int **Figure::getFigure()
 {
     return this->mFigure;
+}
+
+void Figure::setType(int type)
+{
+    this->mType = type;
+}
+
+int Figure::getType()
+{
+    return this->mType;
+}
+
+void Figure::setColor(Qt::GlobalColor color)
+{
+    this->mColor = color;
+}
+
+Qt::GlobalColor Figure::getColor()
+{
+    return this->mColor;
 }
 
 bool Figure::isBlocked()

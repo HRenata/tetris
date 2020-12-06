@@ -10,9 +10,7 @@
 
 #include <../helper_class/helper_class.h>
 #include <Game.h>
-#include <FigureO.h>
-#include <FigureZ.h>
-#include <FigureL.h>
+#include <Figure.h>
 #include <ICallbackFigureWatcher.h>
 #include <ICallbackGameStateWatcher.h>
 #include <interface.h>
@@ -59,5 +57,6 @@ private:
     ICallbackGameStateWatcher *mGameStateListener;
 
     QVector< Interface* > mPlugins;
+    QVector< Figure* > mFigures;
 };
 #endif // VIEW_H

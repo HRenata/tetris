@@ -6,10 +6,6 @@
 #include <../helper_class/helper_class.h>
 #include <Game.h>
 
-#include <FigureO.h>
-#include <FigureL.h>
-#include <FigureZ.h>
-
 class Controller :
         public ICallbackFigureWatcher,
         public ICallbackGameStateWatcher

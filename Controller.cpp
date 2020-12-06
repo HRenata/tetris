@@ -1,5 +1,5 @@
 #include "Controller.h"
-#include <iostream>
+
 Controller::Controller()
 {
 
@@ -333,7 +333,6 @@ void Controller::lockFigure(Figure *figure)
             }
         }
     }
-    figure = new FigureZ();
 }
 
 bool Controller::isPossibleMovementDown(Figure *figure)

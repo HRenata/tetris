@@ -45,7 +45,7 @@ View::View(ICallbackFigureWatcher *figureListener,
 
     //plugins
     QMenu *modeMenu = menuBar()->addMenu("Mode");
-    QDir *dir;dir = new QDir("..\\plugins\\debug");
+    QDir *dir;
     #ifdef QT_DEBUG
         dir = new QDir("..\\plugins\\debug");
     #else
@@ -58,8 +58,8 @@ View::View(ICallbackFigureWatcher *figureListener,
     foreach(QString str, dir->entryList(QDir::Files))
     {
         QPluginLoader loader(dir->absoluteFilePath(str));
-        QObject *object=qobject_cast<QObject*>(loader.instance());//извлекаем плагин
-        Interface *plugin=qobject_cast<Interface*>(object);//приводим к интерфейсу игры
+        QObject *object = qobject_cast<QObject*>(loader.instance());//извлекаем плагин
+        Interface *plugin = qobject_cast<Interface*>(object);//приводим к интерфейсу игры
         if(plugin)
         {
             this->mPlugins.push_back(plugin);
@@ -67,6 +67,27 @@ View::View(ICallbackFigureWatcher *figureListener,
             QAction *applyPlugin = new QAction(tr(namePlugin), this);
             connect(applyPlugin, SIGNAL(triggered()), this, SLOT(applyPlugin()));
             modeMenu->addAction(applyPlugin);
+        }
+    }
+
+    #ifdef QT_DEBUG
+        dir = new QDir("..\\figures\\debug");
+    #else
+        #ifdef QT_RELEASE
+           dir = new QDir("..\\figures\\release");
+        #endif
+    #endif
+
+
+    foreach(QString str, dir->entryList(QDir::Files))
+    {
+        QPluginLoader loader(dir->absoluteFilePath(str));
+        QObject *object = qobject_cast<QObject*>(loader.instance()); //извлекаем фигуру
+        Figure *figure = qobject_cast<Figure*>(object); //приводим к интерфейсу игры
+
+        if(figure)
+        {
+            this->mFigures.push_back(figure);
         }
     }
     delete dir;
@@ -142,20 +163,9 @@ void View::setGameStateListener(ICallbackGameStateWatcher *listener)
 void View::initializeFigure()
 {
     srand(time(0));
-    int rand_ = 1 + rand() % 3;
-
-    if(rand_ == 3)
-    {
-        this->mFigure = new FigureO();
-    }
-    else if(rand_ == 2)
-    {
-        this->mFigure = new FigureL();
-    }
-    else
-    {
-        this->mFigure = new FigureZ();
-    }
+    int rand_ = rand() % this->mFigures.size();
+    this->mFigure = this->mFigures[rand_];
+    this->mFigure->reInitialize();
 
     rand_ = 1 + rand() % 4;
     for(int i = 0; i < rand_; ++i)
@@ -314,20 +324,10 @@ void View::paintFigure(QPainter &Painter)
                      this->mFigure->getOffsetY() + i*Map::mCellWidth,
                      Map::mCellWidth, Map::mCellHeight);
 
-            switch(figureArr[i][j])
+            if(figureArr[i][j] != 0)
             {
-            case 1:
-                Painter.fillRect(el, QBrush(Qt::red));
+                Painter.fillRect(el, QBrush(this->mFigure->getColor()));
                 Painter.drawRect(el);
-                break;
-            case 2:
-                Painter.fillRect(el, QBrush(Qt::green));
-                Painter.drawRect(el);
-                break;
-            case 3:
-                Painter.fillRect(el, QBrush(Qt::blue));
-                Painter.drawRect(el);
-                break;
             }
         }
     }

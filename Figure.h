@@ -2,14 +2,16 @@
 #define FIGURE_H
 
 #include <../helper_class/helper_class.h>
+#include <QColor>
+#include <QtPlugin>
 
 class Figure
 {
 public:
 
-    Figure(int **figure, int type);
+    Figure(int **figure, int type, Qt::GlobalColor color);
     Figure(const Figure &figure);
-    ~Figure();
+    virtual ~Figure();
 
     int **getFigure();
     void setFigure(int **figure);
@@ -32,9 +34,18 @@ public:
     void setOffsetX(int offsetX);
     void setOffsetY(int offsetY);
 
+    void setType(int type);
+    int getType();
+
+    void setColor(Qt::GlobalColor color);
+    Qt::GlobalColor getColor();
+
     bool isBlocked();
     void unblock();
     void block();
+
+    virtual void reInitialize();
+    virtual void initializeFigure() = 0;
 protected:
 
     Figure();
@@ -52,6 +63,9 @@ protected:
     int mType;
 
     bool mIsBlocked;
+    Qt::GlobalColor mColor;
 };
+
+Q_DECLARE_INTERFACE(Figure, "Tetris.Figure");
 
 #endif // FIGURE_H
