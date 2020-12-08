@@ -6,6 +6,10 @@
 #include <QTimer>
 #include <QMessageBox>
 #include <QLibrary>
+#include <QJsonObject>
+#include <QJsonDocument>
+#include <QJsonArray>
+#include <QFile>
 #include <iostream>
 
 typedef QString (*getWindowTitle)();
@@ -20,7 +24,7 @@ View::View(ICallbackFigureWatcher *figureListener,
     , mGameStateListener(nullptr)
 {
     ui->setupUi(this);    
-    this->setFixedSize(540, 605);
+    this->setFixedSize(540, 635);
 
     //uploading helper library at run-time
     QLibrary *titleLib = new QLibrary("helper");
@@ -109,7 +113,143 @@ View::View(ICallbackFigureWatcher *figureListener,
     this->mPauseButton->setGeometry(QRect(QPoint(278, 563), QSize(180, 30)));
     this->mPauseButton->setFocusPolicy(Qt::NoFocus);
     connect(this->mPauseButton, SIGNAL (clicked()), this, SLOT (handlePushPauseButton()));
+
+    this->mConnectButton = new QPushButton("CONNECT", this);
+    this->mConnectButton->setGeometry(QRect(QPoint(78, 600), QSize(381, 30)));
+    this->mConnectButton->setFocusPolicy(Qt::NoFocus);
+    connect(this->mConnectButton, SIGNAL (clicked()), this, SLOT (handlePushConnectButton()));
+    this->mConnectButton->setVisible(true);
+
+    this->mDisconnectButton = new QPushButton("DISCONNECT", this);
+    this->mDisconnectButton->setGeometry(QRect(QPoint(78, 600), QSize(180, 30)));
+    this->mDisconnectButton->setFocusPolicy(Qt::NoFocus);
+    connect(this->mDisconnectButton, SIGNAL (clicked()), this, SLOT (handlePushDisconnectButton()));
+    this->mDisconnectButton->setVisible(false);
+
+    this->mCheckUpdateButton = new QPushButton("CHECK UPDATE", this);
+    this->mCheckUpdateButton->setGeometry(QRect(QPoint(278, 600), QSize(180, 30)));
+    this->mCheckUpdateButton->setFocusPolicy(Qt::NoFocus);
+    connect(this->mCheckUpdateButton, SIGNAL (clicked()), this, SLOT (handlePushCheckUpdateButton()));
+    this->mCheckUpdateButton->setVisible(false);
+
+    this->mClient = new ClientStuff("localhost", 6547);
+
+    setStatus(this->mClient->getStatus());
+
+    connect(this->mClient, &ClientStuff::hasReadSome, this, &View::receivedSomething);
+    connect(this->mClient, &ClientStuff::statusChanged, this, &View::setStatus);
+    connect(this->mClient->tcpSocket, SIGNAL(error(QAbstractSocket::SocketError)),
+            this, SLOT(gotError(QAbstractSocket::SocketError)));
+
+    this->setVersion(this->getDefaultVersion());
 }
+
+void View::setStatus(bool newStatus)
+{
+    if(newStatus)
+    {
+        this->mConnectButton->setVisible(false);
+        this->mDisconnectButton->setVisible(true);
+        this->mCheckUpdateButton->setVisible(true);
+    }
+    else
+    {
+        this->mConnectButton->setVisible(true);
+        this->mDisconnectButton->setVisible(false);
+        this->mCheckUpdateButton->setVisible(false);
+    }
+}
+
+void View::receivedSomething(QString msg)
+{
+    if(msg.contains("version:"))
+    {
+        QString version = msg.remove(0, 8);
+
+        QMessageBox msgBox;
+        if(version == this->mVersion)
+        {
+            msgBox.setText("No available updates");
+            msgBox.exec();
+        }
+        else
+        {
+            msgBox.setText("New version " + version + " is available");
+            msgBox.setInformativeText("Do you want to update app?");
+            msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+            msgBox.setDefaultButton(QMessageBox::Yes);
+            int res = msgBox.exec();
+
+            if (res == QMessageBox::Yes)
+            {
+                this->setVersion(version);
+                QByteArray arrBlock;
+                QDataStream out(&arrBlock, QIODevice::WriteOnly);
+                QString answer = "OK ON UPDATE";
+                out << quint16(0) << answer;
+
+                out.device()->seek(0);
+                out << quint16(arrBlock.size() - sizeof(quint16));
+
+                this->mClient->tcpSocket->write(arrBlock);
+            }
+        }
+    }
+    //не нужно
+    else if(msg.contains("update:"))
+    {
+        QString version = msg.remove(0, 7);
+        this->setVersion(version);
+    }
+}
+
+void View::gotError(QAbstractSocket::SocketError err)
+{
+    QMessageBox msgBox;
+    QString strError = "unknown";
+    switch (err)
+    {
+        case 0:
+            strError = "Connection was refused";
+            break;
+        case 1:
+            strError = "Remote host closed the connection";
+            break;
+        case 2:
+            strError = "Host address was not found";
+            break;
+        case 5:
+            strError = "Connection timed out";
+            break;
+        default:
+            strError = "Unknown error";
+    }
+    msgBox.setText(strError);
+    msgBox.exec();
+}
+
+void View::handlePushConnectButton()
+{
+    this->mClient->connect2host();
+}
+
+void View::handlePushCheckUpdateButton()
+{
+    QByteArray arrBlock;
+    QDataStream out(&arrBlock, QIODevice::WriteOnly);
+    out << quint16(0) << "version:" + this->mVersion;
+
+    out.device()->seek(0);
+    out << quint16(arrBlock.size() - sizeof(quint16));
+
+    this->mClient->tcpSocket->write(arrBlock);
+}
+
+void View::handlePushDisconnectButton()
+{
+    this->mClient->closeConnection();
+}
+
 
 void View::newGame()
 {
@@ -177,6 +317,44 @@ void View::initializeFigure()
     {
         this->mGameStateListener->endGame();
     }
+}
+
+QString View::getDefaultVersion()
+{
+    QString val;
+    QFile file;
+    file.setFileName("client.json");
+    file.open(QIODevice::ReadOnly | QIODevice::Text);
+    val = file.readAll();
+    file.close();
+
+    QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
+    QJsonObject json = doc.object();
+    QString version = json["version"].toString();
+
+    return version;
+}
+
+void View::setVersion(QString version)
+{
+    QJsonObject recordObject;
+    recordObject.insert("version", QJsonValue::fromVariant(version));
+    QJsonDocument doc(recordObject);
+    QString jsonString = doc.toJson(QJsonDocument::Indented);
+
+    QFile file;
+    file.setFileName("client.json");
+    file.open(QIODevice::WriteOnly | QIODevice::Text);
+    QTextStream stream( &file );
+    stream << jsonString;
+    file.close();
+
+    this->mVersion = version;
+}
+
+QString View::getVersion()
+{
+    return this->mVersion;
 }
 
 void View::animate()
@@ -340,7 +518,11 @@ View::~View()
     delete this->mFigure;
     delete this->mStartButton;
     delete this->mPauseButton;
+    delete this->mConnectButton;
+    delete this->mDisconnectButton;
+    delete this->mCheckUpdateButton;
     delete this->mTimer;
-    delete ui;
+    delete this->mClient;
+    delete this->ui;
 }
 

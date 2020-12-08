@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QPushButton>
 #include <QLibrary>
+#include <QString>
 #include <QDir>
 #include <QPluginLoader>
 #include <QPen>
@@ -14,6 +15,7 @@
 #include <ICallbackFigureWatcher.h>
 #include <ICallbackGameStateWatcher.h>
 #include <interface.h>
+#include <ClientStuff.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class View; }
@@ -28,9 +30,14 @@ public:
          ICallbackGameStateWatcher *gameListener,
          QWidget *parent = nullptr);
     ~View();
+
     void setFigureMovementListener(ICallbackFigureWatcher *listener);
     void setGameStateListener(ICallbackGameStateWatcher *listener);
     void initializeFigure();
+
+    void setVersion(QString version);
+    QString getVersion();
+    QString getDefaultVersion();
 
 public slots:
     void animate();
@@ -40,6 +47,15 @@ public slots:
     void endGame();
     void aboutGame();
     void applyPlugin();
+
+    void setStatus(bool newStatus);
+    void receivedSomething(QString msg);
+    void gotError(QAbstractSocket::SocketError err);
+
+private slots:
+    void handlePushCheckUpdateButton();
+    void handlePushConnectButton();
+    void handlePushDisconnectButton();
 
 protected:
     void keyPressEvent (QKeyEvent *e) override;
@@ -52,11 +68,17 @@ private:
     QTimer *mTimer;
     QPushButton *mStartButton;
     QPushButton *mPauseButton;
+    QPushButton *mConnectButton;
+    QPushButton *mDisconnectButton;
+    QPushButton *mCheckUpdateButton;
     Figure *mFigure;
     ICallbackFigureWatcher *mFigureMovementListener;
     ICallbackGameStateWatcher *mGameStateListener;
 
     QVector< Interface* > mPlugins;
     QVector< Figure* > mFigures;
+
+    ClientStuff *mClient;
+    QString mVersion;
 };
 #endif // VIEW_H
