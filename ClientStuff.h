@@ -11,9 +11,10 @@ class ClientStuff : public QObject
     Q_OBJECT
 
 public:
-    ClientStuff(const QString hostAddress, int portVal, QObject *parent = 0);
+    ClientStuff(const QString hostAddress, int portMessVal, int portFileVal, QObject *parent = 0);
 
     QTcpSocket *tcpSocket;
+    QTcpSocket *tcpFileSocket;
     bool getStatus();
 
 public slots:
@@ -26,15 +27,21 @@ signals:
 
 private slots:
     void readyRead();
+    void readyReadFile();
     void connected();
     void connectionTimeout();
 
 private:
+    void connectFileSocket();
+    void connectMessSocket();
     QString host;
-    int port;
+    int portMess;
+    int portFile;
     bool status;
     quint16 m_nNextBlockSize;
+    quint16 m_nNextFileBlockSize;
     QTimer *timeoutTimer;
+    QString fileName;
 };
 
 #endif // CLIENTSTUFF_H

@@ -1,68 +1,96 @@
 #include "clientStuff.h"
+#include <QFile>
+#include <QDir>
+#include <iostream>
+#include <QDirIterator>
 
 ClientStuff::ClientStuff(
         const QString hostAddress,
-        int portNumber,
+        int portMessNumber,
+        int portFileNumber,
         QObject *parent
         ) : QObject(parent), m_nNextBlockSize(0)
 {
-    status = false;
+    this->status = false;
 
-    host = hostAddress;
-    port = portNumber;
+    this->host = hostAddress;
+    this->portMess = portMessNumber;
+    this->portFile = portFileNumber;
+    this->fileName = "file";
 
-    tcpSocket = new QTcpSocket(this);
-    connect(tcpSocket, &QTcpSocket::disconnected, this, &ClientStuff::closeConnection);
+    this->tcpSocket = new QTcpSocket(this);
+    connect(this->tcpSocket, &QTcpSocket::disconnected, this, &ClientStuff::closeConnection);
 
-    timeoutTimer = new QTimer();
-    timeoutTimer->setSingleShot(true);
-    connect(timeoutTimer, &QTimer::timeout, this, &ClientStuff::connectionTimeout);
+    this->tcpFileSocket = new QTcpSocket(this);
+    connect(this->tcpFileSocket, &QTcpSocket::disconnected, this, &ClientStuff::closeConnection);
+
+    this->timeoutTimer = new QTimer();
+    this->timeoutTimer->setSingleShot(true);
+    connect(this->timeoutTimer, &QTimer::timeout, this, &ClientStuff::connectionTimeout);
 }
 
 void ClientStuff::connect2host()
 {
-    timeoutTimer->start(3000);
+    this->timeoutTimer->start(3000);
 
-    tcpSocket->connectToHost(host, port);
-    connect(tcpSocket, &QTcpSocket::connected, this, &ClientStuff::connected);
-    connect(tcpSocket, &QTcpSocket::readyRead, this, &ClientStuff::readyRead);
+    this->connectMessSocket();
+    this->connectFileSocket();
+}
+
+void ClientStuff::connectMessSocket()
+{
+    this->tcpSocket->connectToHost(host, this->portMess);
+    connect(this->tcpSocket, &QTcpSocket::connected, this, &ClientStuff::connected);
+    connect(this->tcpSocket, &QTcpSocket::readyRead, this, &ClientStuff::readyRead);
+}
+
+void ClientStuff::connectFileSocket()
+{
+    this->tcpFileSocket->connectToHost(host, this->portFile);
+    connect(this->tcpFileSocket, &QTcpSocket::connected, this, &ClientStuff::connected);
+    connect(this->tcpFileSocket, &QTcpSocket::readyRead, this, &ClientStuff::readyReadFile);
 }
 
 void ClientStuff::connectionTimeout()
 {
-    if(tcpSocket->state() == QAbstractSocket::ConnectingState)
+    if(this->tcpSocket->state() == QAbstractSocket::ConnectingState)
     {
-        tcpSocket->abort();
-        emit tcpSocket->error(QAbstractSocket::SocketTimeoutError);
+        this->tcpSocket->abort();
+        emit this->tcpSocket->error(QAbstractSocket::SocketTimeoutError);
+    }
+    if(this->tcpFileSocket->state() == QAbstractSocket::ConnectingState)
+    {
+        this->tcpFileSocket->abort();
+        emit this->tcpFileSocket->error(QAbstractSocket::SocketTimeoutError);
     }
 }
 
 void ClientStuff::connected()
 {
-    status = true;
-    emit statusChanged(status);
+    this->status = true;
+    emit statusChanged(this->status);
 }
 
 bool ClientStuff::getStatus()
 {
-    return status;
+    return this->status;
 }
 
 void ClientStuff::readyRead()
 {
-    QDataStream in(tcpSocket);
+    QDataStream in(this->tcpSocket);
     while(true)
     {
-        if (!m_nNextBlockSize)
+        if (!this->m_nNextBlockSize)
         {
-            if (tcpSocket->bytesAvailable() < sizeof(quint16))
+            if (this->tcpSocket->bytesAvailable() < sizeof(quint16))
             {
                 break;
             }
-            in >> m_nNextBlockSize;
+            in >> this->m_nNextBlockSize;
         }
 
-        if (tcpSocket->bytesAvailable() < m_nNextBlockSize)
+        if (this->tcpSocket->bytesAvailable() < this->m_nNextBlockSize)
         {
             break;
         }
@@ -73,39 +101,104 @@ void ClientStuff::readyRead()
         if (str == "0")
         {
             str = "Connection closed";
-            closeConnection();
+            this->closeConnection();
         }
+        if(str.contains("file:"))
+        {
+            this->fileName = str.remove(0, 5);
+            str = "file:" + this->fileName;
+            QString newDir = "../figures";
+
+            #ifdef QT_DEBUG
+                this->fileName += "/debug";
+                newDir += "/debug";
+            #else
+                #ifdef QT_RELEASE
+                   this->fileName = "/release";
+                    newDir += "/release";
+                #endif
+            #endif
+       }
 
         emit hasReadSome(str);
         m_nNextBlockSize = 0;
     }
 }
 
+void ClientStuff::readyReadFile()
+{
+    if(this->fileName == "")
+    {
+        QDataStream in(this->tcpFileSocket);
+        while(true)
+        {
+            if (!this->m_nNextBlockSize)
+            {
+                if (this->tcpFileSocket->bytesAvailable() < sizeof(quint16))
+                {
+                    break;
+                }
+                in >> this->m_nNextBlockSize;
+            }
+
+            if (this->tcpFileSocket->bytesAvailable() < this->m_nNextBlockSize)
+            {
+                break;
+            }
+
+            QByteArray byteArr;
+            in >> byteArr;
+
+            QFile file(this->fileName);
+            file.open(QIODevice::WriteOnly);
+            file.write(byteArr);
+            file.close();
+
+            m_nNextFileBlockSize = 0;
+        }
+    }
+}
+
 void ClientStuff::closeConnection()
 {
-    timeoutTimer->stop();
+    this->timeoutTimer->stop();
 
-    disconnect(tcpSocket, &QTcpSocket::connected, 0, 0);
-    disconnect(tcpSocket, &QTcpSocket::readyRead, 0, 0);
+    disconnect(this->tcpSocket, &QTcpSocket::connected, 0, 0);
+    disconnect(this->tcpSocket, &QTcpSocket::readyRead, 0, 0);
+    disconnect(this->tcpFileSocket, &QTcpSocket::readyRead, 0, 0);
 
     bool shouldEmit = false;
-    switch (tcpSocket->state())
+    switch (this->tcpSocket->state())
     {
         case 0:
-            tcpSocket->disconnectFromHost();
+            this->tcpSocket->disconnectFromHost();
             shouldEmit = true;
             break;
         case 2:
-            tcpSocket->abort();
+            this->tcpSocket->abort();
             shouldEmit = true;
             break;
         default:
-            tcpSocket->abort();
+            this->tcpSocket->abort();
+    }
+
+    switch (this->tcpFileSocket->state())
+    {
+        case 0:
+            this->tcpFileSocket->disconnectFromHost();
+            shouldEmit = true;
+            break;
+        case 2:
+            this->tcpFileSocket->abort();
+            shouldEmit = true;
+            break;
+        default:
+            this->tcpFileSocket->abort();
     }
 
     if (shouldEmit)
     {
-        status = false;
-        emit statusChanged(status);
+        this->status = false;
+        emit statusChanged(this->status);
     }
 }

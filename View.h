@@ -38,6 +38,7 @@ public:
     void setVersion(QString version);
     QString getVersion();
     QString getDefaultVersion();
+    void downloadFigures();
 
 public slots:
     void animate();

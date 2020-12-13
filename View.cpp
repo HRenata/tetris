@@ -73,28 +73,9 @@ View::View(ICallbackFigureWatcher *figureListener,
             modeMenu->addAction(applyPlugin);
         }
     }
-
-    #ifdef QT_DEBUG
-        dir = new QDir("..\\figures\\debug");
-    #else
-        #ifdef QT_RELEASE
-           dir = new QDir("..\\figures\\release");
-        #endif
-    #endif
-
-
-    foreach(QString str, dir->entryList(QDir::Files))
-    {
-        QPluginLoader loader(dir->absoluteFilePath(str));
-        QObject *object = qobject_cast<QObject*>(loader.instance()); //извлекаем фигуру
-        Figure *figure = qobject_cast<Figure*>(object); //приводим к интерфейсу игры
-
-        if(figure)
-        {
-            this->mFigures.push_back(figure);
-        }
-    }
     delete dir;
+
+    this->downloadFigures();
 
     this->setFigureMovementListener(figureListener);
     this->setGameStateListener(gameListener);
@@ -132,7 +113,7 @@ View::View(ICallbackFigureWatcher *figureListener,
     connect(this->mCheckUpdateButton, SIGNAL (clicked()), this, SLOT (handlePushCheckUpdateButton()));
     this->mCheckUpdateButton->setVisible(false);
 
-    this->mClient = new ClientStuff("localhost", 6547);
+    this->mClient = new ClientStuff("localhost", 6547, 6788);
 
     setStatus(this->mClient->getStatus());
 
@@ -140,8 +121,36 @@ View::View(ICallbackFigureWatcher *figureListener,
     connect(this->mClient, &ClientStuff::statusChanged, this, &View::setStatus);
     connect(this->mClient->tcpSocket, SIGNAL(error(QAbstractSocket::SocketError)),
             this, SLOT(gotError(QAbstractSocket::SocketError)));
+    connect(this->mClient->tcpFileSocket, SIGNAL(error(QAbstractSocket::SocketError)),
+            this, SLOT(gotError(QAbstractSocket::SocketError)));
 
     this->setVersion(this->getDefaultVersion());
+}
+
+void View::downloadFigures()
+{
+    QDir * dir = new QDir();
+    #ifdef QT_DEBUG
+        dir = new QDir("..\\figures\\debug");
+    #else
+        #ifdef QT_RELEASE
+           dir = new QDir("..\\figures\\release");
+        #endif
+    #endif
+
+
+    foreach(QString str, dir->entryList(QDir::Files))
+    {
+        QPluginLoader loader(dir->absoluteFilePath(str));
+        QObject *object = qobject_cast<QObject*>(loader.instance()); //извлекаем фигуру
+        Figure *figure = qobject_cast<Figure*>(object); //приводим к интерфейсу игры
+
+        if(figure)
+        {
+            this->mFigures.push_back(figure);
+        }
+    }
+    delete dir;
 }
 
 void View::setStatus(bool newStatus)
@@ -195,11 +204,9 @@ void View::receivedSomething(QString msg)
             }
         }
     }
-    //не нужно
-    else if(msg.contains("update:"))
+    if(msg.contains("file:"))
     {
-        QString version = msg.remove(0, 7);
-        this->setVersion(version);
+        this->downloadFigures();
     }
 }
 
@@ -513,6 +520,7 @@ void View::paintFigure(QPainter &Painter)
 
 View::~View()
 {
+    this->mClient->closeConnection();
     delete this->mFigureMovementListener;
     delete this->mGameStateListener;
     delete this->mFigure;
